@@ -11,16 +11,21 @@ class Heroku::Command::Domains < Heroku::Command::Base
     action("Adding #{domain} to #{app}") do
       api.post_domain(app, domain)
     end
-    display "Verify DNS settings with domains:verify"
+    display ""
+    dns_advice(app, domain)
   end
 
-  def verify
+  def dns
     unless domain = shift_argument
-      error("Usage: heroku domains:verify DOMAIN\nMust specify DOMAIN to verify.")
+      error("Usage: heroku domains:add DOMAIN\nMust specify DOMAIN to get.")
     end
+    validate_arguments!
+    dns_advice(app, domain)
+  end
 
-    display ""
+  private
 
+  def dns_advice(app, domain)
     _app_info = app_info(app)
     _ssl_endpoints = ssl_endpoints(app)
 
@@ -41,22 +46,8 @@ class Heroku::Command::Domains < Heroku::Command::Base
 
     if apex?(domain)
       display "Users of apex (root) domains should read https://devcenter.heroku.com/articles/apex-domains"
-      display ""
-    end
-
-    action "Routing..." do
-      if is_on_heroku?(domain)
-        display "OK"
-      else
-        display "Error"
-        display ""
-        display "We could not resolve this domain to Heroku. Please check DNS settings and try again."
-        display "https://devcenter.heroku.com/articles/custom-domains"
-      end
     end
   end
-
-  private
 
   def apex?(domain)
     domain.split('.').size == 2
@@ -64,8 +55,7 @@ class Heroku::Command::Domains < Heroku::Command::Base
 
   def is_on_heroku?(domain)
     uri = URI.parse "http://radiocheck.herokuapp.com/check/#{domain}"
-    radio_check = Net::HTTP.get(uri)
-    radio_check == 'true'
+    Net::HTTP.get(uri) == 'true'
   end
 
   def app_info(app)
