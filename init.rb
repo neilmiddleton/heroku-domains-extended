@@ -43,7 +43,7 @@ class Heroku::Command::Domains < Heroku::Command::Base
       end
     else
       result << ['HTTP:', "Domain should #{alias_type(domain)} #{_app_info[:domain]}"]
-      result << ['HTTPS:', "Not available on this domain.  Add an SSL:Endpoint."]
+      result << ['HTTPS:', "Not enabled on this domain.  Add an SSL:Endpoint."]
     end
 
     styled_array result
