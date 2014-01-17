@@ -54,7 +54,9 @@ class Heroku::Command::Domains < Heroku::Command::Base
   end
 
   def apex?(domain)
-    domain.split('.').size == 2
+    uri = URI.parse("http://dominion-dns.herokuapp.com/base/#{domain}")
+    base_domain = Net::HTTP.get(uri)
+    domain == base_domain
   end
 
   def is_on_heroku?(domain)
