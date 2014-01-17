@@ -59,11 +59,6 @@ class Heroku::Command::Domains < Heroku::Command::Base
     domain == base_domain
   end
 
-  def is_on_heroku?(domain)
-    uri = URI.parse "http://radiocheck.herokuapp.com/check/#{domain}"
-    Net::HTTP.get(uri) == 'true'
-  end
-
   def app_info(app)
     _info = api.get_app(app).body
     return {
