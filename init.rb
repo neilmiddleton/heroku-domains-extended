@@ -25,6 +25,10 @@ class Heroku::Command::Domains < Heroku::Command::Base
 
   private
 
+  def alias_type(domain)
+    apex?(domain) ? "ALIAS" : "CNAME"
+  end
+
   def dns_advice(app, domain)
     _app_info = app_info(app)
     _ssl_endpoints = ssl_endpoints(app)
@@ -33,12 +37,12 @@ class Heroku::Command::Domains < Heroku::Command::Base
 
     if _ssl_endpoints.size > 0
       if _app_info[:region] == 'eu'
-        result << ['HTTP & HTTPS:', "Domain should CNAME/ALIAS #{_app_info[:domain]}"]
+        result << ['HTTP & HTTPS:', "Domain should #{alias_type(domain)} #{_app_info[:domain]}"]
       else
-        result << ['HTTP & HTTPS:', "Domain should CNAME/ALIAS #{_ssl_endpoints.first}"]
+        result << ['HTTP & HTTPS:', "Domain should #{alias_type(domain)} #{_ssl_endpoints.first}"]
       end
     else
-      result << ['HTTP:', "Domain should CNAME/ALIAS #{_app_info[:domain]}"]
+      result << ['HTTP:', "Domain should #{alias_type(domain)} #{_app_info[:domain]}"]
       result << ['HTTPS:', "Not available on this domain.  Add an SSL:Endpoint."]
     end
 
